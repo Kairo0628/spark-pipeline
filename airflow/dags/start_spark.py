@@ -6,7 +6,7 @@ from datetime import datetime
 with DAG(
     dag_id = 'start_spark_cluster_dag',
     description = 'Start Spark Cluster',
-    start_date = datetime(2026, 3, 1),
+    start_date = datetime(2026, 2, 28),
     schedule = '0 9 * * *', # 매일 UTC: 00:00, KST: 09:00
     tags = ['spark']
 ) as dag:

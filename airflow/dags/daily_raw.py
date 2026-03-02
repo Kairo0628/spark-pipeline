@@ -101,7 +101,7 @@ def upload_gcs(api_id, prev_task, ds, ti, **context):
 with DAG(
     dag_id = 'daily_raw_data_dag',
     description = 'Extract Daily Raw Data and Load to GCS',
-    start_date = datetime(2026, 2, 26),
+    start_date = datetime(2026, 2, 28),
     schedule = '30 0 * * *', # 매일 UTC: 00:30, KST: 09:30
     tags = ['Monthly', 'Raw']
 ) as dag:
