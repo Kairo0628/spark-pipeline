@@ -5,6 +5,7 @@ from airflow.providers.standard.operators.python import PythonOperator
 import logging
 import requests
 import json
+import os
 from datetime import datetime
 
 FILE_NAME ={
@@ -17,7 +18,7 @@ FILE_NAME ={
 def extract(api_id, target_date, **context):
     file_name = FILE_NAME[api_id]
 
-    logging.info('Check Link')
+    logging.info(f'Check Link, Date: {target_date}')
     api_key = Variable.get('api_key')
     base_url = Variable.get('base_url')
     url_check = f'{base_url}/{api_key}/json/{api_id}/1/1/{target_date}'
@@ -34,17 +35,19 @@ def extract(api_id, target_date, **context):
             response = requests.get(url = url)
             row = response.json()[api_id]['row']
             rows += row
+
+        with open(f'/opt/airflow/data/{file_name}.json', 'w', encoding = 'utf-8') as f:
+            json.dump(rows, f, ensure_ascii = False)
+
         logging.info(f'{file_name} Extract Complete')
     except Exception as E:
         logging.info(f'{file_name} Extract Error')
         raise E
-    
-    return rows
 
 def extract_bus_stop_trip_count(api_id, target_date, **context):
     file_name = FILE_NAME[api_id]
 
-    logging.info('Check Link')
+    logging.info(f'Check Link, Date: {target_date}')
     api_key = Variable.get('api_key')
     base_url = Variable.get('base_url')
     url_check = f'{base_url}/{api_key}/json/{api_id}/1/1/{target_date}'
@@ -73,37 +76,38 @@ def extract_bus_stop_trip_count(api_id, target_date, **context):
             
             if stop:
                 break
+
+        with open(f'/opt/airflow/data/{file_name}.json', 'w', encoding = 'utf-8') as f:
+            json.dump(rows, f, ensure_ascii = False)
             
         logging.info(f'{file_name} Extract Complete')
     except Exception as E:
         logging.info(f'{file_name} Extract Error')
         raise E
-    
-    return rows
 
-def upload_gcs(api_id, prev_task, ds, ti, **context):
+def upload_gcs(api_id, ds, **context):
     file_name = FILE_NAME[api_id]
     logging.info(f'{file_name} Upload Start')
-
-    rows = ti.xcom_pull(task_ids = prev_task)
-    json_rows = json.dumps(rows)
 
     hook = GCSHook(gcp_conn_id = 'gcp_conn_id')
     hook.upload(
         bucket_name = 'spark-pipeline-bucket',
         object_name = f'raw_data/daily/dt={ds}/{file_name}.json',
-        data = json_rows,
+        filename = f'/opt/airflow/data/{file_name}.json',
         encoding = 'utf-8'
     )
-
     logging.info(f'{file_name} Upload Complete')
 
+    os.remove(f'/opt/airflow/data/{file_name}.json')
+    logging.info('Json File Delete Complete')
+
 with DAG(
-    dag_id = 'daily_raw_data_dag',
+    dag_id = 'daily_raw_data_dag_v2',
     description = 'Extract Daily Raw Data and Load to GCS',
-    start_date = datetime(2026, 2, 28),
-    schedule = '30 0 * * *', # 매일 UTC: 00:30, KST: 09:30
-    tags = ['Monthly', 'Raw']
+    start_date = datetime(2026, 2, 26),
+    schedule = '30 0 * * *', # 매일. UTC: 00:30, KST: 09:30
+    tags = ['Daily', 'Raw'],
+    max_active_runs = 1
 ) as dag:
     
     dong_foot_traffic_extract = PythonOperator(
@@ -119,8 +123,7 @@ with DAG(
         task_id = 'dong_foot_traffic_upload',
         python_callable = upload_gcs,
         op_kwargs = {
-            'api_id': 'SPOP_LOCAL_RESD_DONG',
-            'prev_task': 'dong_foot_traffic_extract'
+            'api_id': 'SPOP_LOCAL_RESD_DONG'
         }
     )
 
@@ -137,8 +140,7 @@ with DAG(
         task_id = 'bus_stop_passenger_upload',
         python_callable = upload_gcs,
         op_kwargs = {
-            'api_id': 'CardBusStatisticsServiceNew',
-            'prev_task': 'bus_stop_passenger_extract'
+            'api_id': 'CardBusStatisticsServiceNew'
         }
     )
 
@@ -155,8 +157,7 @@ with DAG(
         task_id = 'bus_stop_trip_count_upload',
         python_callable = upload_gcs,
         op_kwargs = {
-            'api_id': 'tpssStationRouteTurn',
-            'prev_task': 'bus_stop_trip_count_extract'
+            'api_id': 'tpssStationRouteTurn'
         }
     )
 
@@ -173,8 +174,7 @@ with DAG(
         task_id = 'bus_dong_passenger_upload',
         python_callable = upload_gcs,
         op_kwargs = {
-            'api_id': 'tpssEmdBus',
-            'prev_task': 'bus_dong_passenger_extract'
+            'api_id': 'tpssEmdBus'
         }
     )
 
