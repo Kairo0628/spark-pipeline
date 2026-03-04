@@ -61,7 +61,7 @@ with DAG(
     dag_id = 'monthly_raw_data_dag',
     description = 'Extract Monthly Raw Data and Load to GCS',
     start_date = datetime(2026, 2, 28),
-    schedule = '30 0 1 * *', # 매월 1일. UTC: 00:30, KST: 09:30
+    schedule = '30 5 1 * *', # 매월 1일. UTC: 05:30, KST: 14:30
     tags = ['Monthly', 'Raw']
 ) as dag:
     
