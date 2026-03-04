@@ -16,7 +16,7 @@ with DAG(
         ssh_conn_id = 'ssh_conn_id',
         command = """
             echo 'Stop Spark Cluster...' && \
-            $SPARK_HOME/sbin/stop-all.sh && \
+            /opt/spark/sbin/stop-all.sh && \
             echo 'Spark Cluster Stopped'
         """
     )

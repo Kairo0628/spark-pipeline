@@ -16,12 +16,12 @@ with DAG(
         ssh_conn_id = 'ssh_conn_id',
         cmd_timeout = None,
         command = """
-            $SPARK_HOME/bin/spark-submit \
+            /opt/spark/bin/spark-submit \
             --master spark://10.128.0.8:7077 \
             --conf 'spark.driver.userClassPathFirst=true' \
             --conf 'spark.executor.userClassPathFirst=true' \
             --packages com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.5 \
-            $SPARK_HOME/scripts/monthly_parquet_spark.py \
+            /opt/spark/scripts/monthly_parquet_spark.py \
             --ds {{ ds }}
         """
     )
