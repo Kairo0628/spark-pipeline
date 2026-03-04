@@ -14,7 +14,11 @@ with DAG(
     t1 = SSHOperator(
         task_id = 'stop_spark_cluster',
         ssh_conn_id = 'ssh_conn_id',
-        command = ' echo "Stop Spark Cluster..." && /opt/spark/sbin/stop-all.sh && echo "Spark Cluster Stopped!" '
+        command = """
+            echo 'Stop Spark Cluster...' && \
+            $SPARK_HOME/sbin/stop-all.sh && \
+            echo 'Spark Cluster Stopped'
+        """
     )
 
     t1
