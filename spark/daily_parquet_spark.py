@@ -173,8 +173,6 @@ def preprocessing(ds):
                     .partitionBy('dt')\
                     .parquet(f'{write_base_dir}/bus_dong_passenger')
     
-    input('Waiting...')
-    
     spark.stop()
 
 if __name__ == '__main__':
