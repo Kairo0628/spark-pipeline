@@ -5,11 +5,13 @@ from airflow.providers.standard.operators.python import PythonOperator
 import logging
 import requests
 import json
+import os
 from datetime import datetime
 
-FILE_NAME ={
-    'busRoute': 'bus_route',
-    'busStopLocationXyInfo': 'bus_stop',
+FILE_NAME = {
+    'masterRouteNode': 'bus_route_stop',
+    'tbisMasterStation': 'bus_stop',
+    'tbisMasterRoute': 'bus_route',
     'districtEmd': 'dong_info'
 }
 
@@ -33,52 +35,53 @@ def extract(api_id):
             response = requests.get(url = url)
             row = response.json()[api_id]['row']
             rows += row
+
+        with open(f'/opt/airflow/data/{file_name}.json', 'w', encoding = 'utf-8') as f:
+            json.dump(rows, f, ensure_ascii = False)
+        
         logging.info(f'{file_name} Extract Complete')
     except Exception as E:
         logging.info(f'{file_name} Extract Error')
         raise E
-    
-    return rows
 
-def upload_gcs(api_id, prev_task, ds, ti, **context):
+def upload_gcs(api_id, ds, **context):
     file_name = FILE_NAME[api_id]
     logging.info(f'{file_name} Upload Start')
-
-    rows = ti.xcom_pull(task_ids = prev_task)
-    json_rows = json.dumps(rows)
 
     hook = GCSHook(gcp_conn_id = 'gcp_conn_id')
     hook.upload(
         bucket_name = 'spark-pipeline-bucket',
         object_name = f'raw_data/monthly/dt={ds}/{file_name}.json',
-        data = json_rows,
+        filename = f'/opt/airflow/data/{file_name}.json',
         encoding = 'utf-8'
     )
-
     logging.info(f'{file_name} Upload Complete')
 
+    os.remove(f'/opt/airflow/data/{file_name}.json')
+    logging.info('Json File Delete Complete')
+
 with DAG(
-    dag_id = 'monthly_raw_data_dag',
+    dag_id = 'monthly_raw_data_dag_v2',
     description = 'Extract Monthly Raw Data and Load to GCS',
     start_date = datetime(2026, 2, 28),
     schedule = '30 5 1 * *', # 매월 1일. UTC: 05:30, KST: 14:30
-    tags = ['Monthly', 'Raw']
+    tags = ['Monthly', 'Raw'],
+    max_active_runs = 1
 ) as dag:
     
-    bus_route_extract = PythonOperator(
-        task_id = 'bus_route_extract',
+    bus_route_stop_extract = PythonOperator(
+        task_id = 'bus_route_stop_extract',
         python_callable = extract,
         op_kwargs = {
-            'api_id': 'busRoute'
+            'api_id': 'masterRouteNode'
         }
     )
 
-    bus_route_upload = PythonOperator(
-        task_id = 'bus_route_upload',
+    bus_route_stop_upload = PythonOperator(
+        task_id = 'bus_route_stop_upload',
         python_callable = upload_gcs,
         op_kwargs = {
-            'api_id': 'busRoute',
-            'prev_task': 'bus_route_extract'
+            'api_id': 'masterRouteNode',
         }
     )
 
@@ -86,7 +89,7 @@ with DAG(
         task_id = 'bus_stop_extract',
         python_callable = extract,
         op_kwargs = {
-            'api_id': 'busStopLocationXyInfo'
+            'api_id': 'tbisMasterStation'
         }
     )
 
@@ -94,28 +97,43 @@ with DAG(
         task_id = 'bus_stop_upload',
         python_callable = upload_gcs,
         op_kwargs = {
-            'api_id': 'busStopLocationXyInfo',
-            'prev_task': 'bus_stop_extract'
+            'api_id': 'tbisMasterStation',
         }
     )
 
-    seoul_dong_extract = PythonOperator(
-        task_id = 'seoul_dong_extract',
+    bus_route_extract = PythonOperator(
+        task_id = 'bus_route_extract',
+        python_callable = extract,
+        op_kwargs = {
+            'api_id': 'tbisMasterRoute'
+        }
+    )
+
+    bus_route_upload = PythonOperator(
+        task_id = 'bus_route_upload',
+        python_callable = upload_gcs,
+        op_kwargs = {
+            'api_id': 'tbisMasterRoute',
+        }
+    )
+
+    dong_info_extract = PythonOperator(
+        task_id = 'dong_info_extract',
         python_callable = extract,
         op_kwargs = {
             'api_id': 'districtEmd'
         }
     )
 
-    seoul_dong_upload = PythonOperator(
-        task_id = 'seoul_dong_upload',
+    dong_info_upload = PythonOperator(
+        task_id = 'dong_info_upload',
         python_callable = upload_gcs,
         op_kwargs = {
             'api_id': 'districtEmd',
-            'prev_task': 'seoul_dong_extract'
         }
     )
 
-    bus_route_extract >> bus_route_upload
+    bus_route_stop_extract >> bus_route_stop_upload
     bus_stop_extract >> bus_stop_upload
-    seoul_dong_extract >> seoul_dong_upload
+    bus_route_extract >> bus_route_upload
+    dong_info_extract >> dong_info_upload

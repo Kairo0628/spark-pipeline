@@ -61,8 +61,8 @@ def preprocessing(ds):
         FROM dong_foot_traffic
     """)
     dong_foot_traffic = dong_foot_traffic.withColumn('dt', f.lit(ds))
-    dong_foot_traffic.printSchema()
     dong_foot_traffic.show(1)
+    dong_foot_traffic.printSchema()
 
     bus_stop_passenger = spark.sql("""
         SELECT
@@ -80,8 +80,8 @@ def preprocessing(ds):
     bus_stop_passenger = bus_stop_passenger.withColumn('RTE_NM', f.col('RTE_NO'))\
                                             .withColumn('dt', f.lit(ds))\
                                             .drop('RTE_NO')
-    bus_stop_passenger.printSchema()
     bus_stop_passenger.show(1)
+    bus_stop_passenger.printSchema()
 
     bus_stop_trip_count = spark.sql("""
         SELECT
@@ -117,8 +117,8 @@ def preprocessing(ds):
         FROM bus_stop_trip_count
     """)
     bus_stop_trip_count = bus_stop_trip_count.withColumn('dt', f.lit(ds))
-    bus_stop_trip_count.printSchema()
     bus_stop_trip_count.show(1)
+    bus_stop_trip_count.printSchema()
 
     bus_dong_passenger = spark.sql("""
         SELECT
@@ -152,8 +152,8 @@ def preprocessing(ds):
         FROM bus_dong_passenger
     """)
     bus_dong_passenger = bus_dong_passenger.withColumn('dt', f.lit(ds))
-    bus_dong_passenger.printSchema()
     bus_dong_passenger.show(1)
+    bus_dong_passenger.printSchema()
 
     write_base_dir = 'gs://spark-pipeline-bucket/parquet/daily'
     dong_foot_traffic.write\

@@ -21,38 +21,71 @@ def preprocessing(ds):
     spark = create_spark_session()
 
     base_dir = 'gs://spark-pipeline-bucket/raw_data/monthly'
-    bus_route = spark.read.json(f'{base_dir}/dt={ds}/bus_route.json')
-    bus_stop = spark.read.json(f'{base_dir}/dt={ds}/bus_stop.json')
-    dong_info = spark.read.json(f'{base_dir}/dt={ds}/dong_info.json')
-
-    bus_route = bus_route.withColumn('RTE_ID', f.col('RTE_ID').cast('int'))\
-                            .withColumn('dt', f.lit(ds))
-    bus_route.printSchema()
-    bus_route.show(1)
-
-    bus_stop = bus_stop.withColumn('STOPS_ID', f.col('NODE_ID').cast('int'))\
-                        .withColumn('STOPS_NO', f.col('STOPS_NO').cast('int'))\
-                        .withColumn('XCRD', f.col('XCRD').cast('float'))\
-                        .withColumn('YCRD', f.col('YCRD').cast('float'))\
-                        .withColumn('dt', f.lit(ds))\
-                        .drop('NODE_ID')
-    bus_stop.printSchema()
-    bus_stop.show(1)
-
-    dong_info = dong_info.withColumn('DONG_ID', f.col('DONG_ID').cast('int'))\
-                            .withColumn('dt', f.lit(ds))
-    dong_info.printSchema()
-    dong_info.show(1)
-
     write_base_dir = 'gs://spark-pipeline-bucket/parquet/monthly'
+
+    # 노선 정류장 마스터
+    bus_route_stop = spark.read.json(f'{base_dir}/dt={ds}/bus_route_stop.json')
+    bus_route_stop = bus_route_stop.withColumn('RTE_ID', f.col('RTE_ID').cast('int'))\
+                                .withColumn('STOP_ID', f.col('CRTR_ID').cast('int'))\
+                                .withColumn('LNKG_LEN', f.col('LNKG_LEN').cast('int'))\
+                                .withColumn('STOP_SEQ', f.col('CRTR_SEQ').cast('int'))\
+                                .withColumn('dt', f.lit(ds))\
+                                .drop('CRTR_ID', 'CRTR_SEQ')
+
+    bus_route_stop.show(1)
+    bus_route_stop.printSchema()
+    print('Partitions:', bus_route_stop.rdd.getNumPartitions())
+
+    bus_route_stop.write\
+                .mode('overwrite')\
+                .partitionBy('dt')\
+                .parquet(f'{write_base_dir}/bus_route_stop')
+    
+    # 정류장 마스터
+    bus_stop = spark.read.json(f'{base_dir}/dt={ds}/bus_stop.json')
+    bus_stop = bus_stop.withColumn('STOP_ID', f.col('CRTR_ID').cast('int'))\
+                    .withColumn('STOP_NM', f.col('CRTR_NM'))\
+                    .withColumn('STOP_TYPE', f.col('CRTR_TYPE'))\
+                    .withColumn('STOP_NO', f.col('CRTR_NO').cast('int'))\
+                    .withColumn('LAT', f.col('LAT').cast('float'))\
+                    .withColumn('LOT', f.col('LOT').cast('float'))\
+                    .withColumn('ARR_INFO', f.trim(f.col('BUS_ARVL_INFO_GUIDEM_INSTL')))\
+                    .withColumn('dt', f.lit(ds))\
+                    .drop('CRTR_ID', 'CRTR_NM', 'CRTR_TYPE', 'CRTR_NO', 'BUS_ARVL_INFO_GUIDEM_INSTL')
+    
+    bus_stop.show(1)
+    bus_stop.printSchema()
+    print('Partitions:', bus_stop.rdd.getNumPartitions())
+
+    bus_stop.write\
+            .mode('overwrite')\
+            .partitionBy('dt')\
+            .parquet(f'{write_base_dir}/bus_stop')
+    
+    # 노선 마스터
+    bus_route = spark.read.json(f'{base_dir}/dt={ds}/bus_route.json')
+    bus_route = bus_route.withColumn('RTE_ID', f.col('RTE_ID').cast('int'))\
+                        .withColumn('DIST', f.col('DIST').cast('float'))\
+                        .withColumn('dt', f.lit(ds))
+                        
+    bus_route.show(1)
+    bus_route.printSchema()
+    print('Partitions:', bus_route.rdd.getNumPartitions())
+
     bus_route.write\
                 .mode('overwrite')\
                 .partitionBy('dt')\
                 .parquet(f'{write_base_dir}/bus_route')
-    bus_stop.write\
-                .mode('overwrite')\
-                .partitionBy('dt')\
-                .parquet(f'{write_base_dir}/bus_stop')
+
+    # 읍면동 마스터
+    dong_info = spark.read.json(f'{base_dir}/dt={ds}/dong_info.json')
+    dong_info = dong_info.withColumn('DONG_ID', f.col('DONG_ID').cast('int'))\
+                        .withColumn('dt', f.lit(ds))
+    
+    dong_info.show(1)
+    dong_info.printSchema()
+    print('Partitions:', dong_info.rdd.getNumPartitions())
+
     dong_info.write\
                 .mode('overwrite')\
                 .partitionBy('dt')\
