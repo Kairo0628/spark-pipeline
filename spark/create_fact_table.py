@@ -40,6 +40,10 @@ def preprocessing(ds):
         LIMIT 1
     """)
 
+    bus_dong_passenger.show(1)
+    bus_dong_passenger.printSchema()
+    print('Partitions:', bus_dong_passenger.rdd.getNumPartitions())
+
     dim_date.write\
             .format('bigquery')\
             .option('temporaryGcsBucket', 'spark-pipeline-bucket')\
@@ -61,6 +65,10 @@ def preprocessing(ds):
         FROM bus_stop_passenger
     """)
 
+    fact_bus_stop_passenger.show(1)
+    fact_bus_stop_passenger.printSchema()
+    print('Partitions:', fact_bus_stop_passenger.rdd.getNumPartitions())
+
     fact_bus_stop_passenger.write\
         .format('bigquery')\
         .option('temporaryGcsBucket', 'spark-pipeline-bucket')\
@@ -70,7 +78,7 @@ def preprocessing(ds):
     
     # fact2: fact_bus_stop_trip_count
     bus_stop_trip_count = spark.read.parquet(f'{base_dir}/daily/bus_stop_trip_count/dt={ds}')
-    bus_stop_trip_count = bus_stop_trip_count.drop('STOPS_SEQ')
+    bus_stop_trip_count = bus_stop_trip_count.drop('STOP_SEQ')
     bus_stop_trip_count.createOrReplaceTempView('bus_stop_trip_count')
     fact_bus_stop_trip_count = spark.sql("""
         SELECT
@@ -78,6 +86,10 @@ def preprocessing(ds):
             CURRENT_DATE() AS UPDATED_AT
         FROM bus_stop_trip_count
     """)
+
+    fact_bus_stop_trip_count.show(1)
+    fact_bus_stop_trip_count.printSchema()
+    print('Partitions:', fact_bus_stop_trip_count.rdd.getNumPartitions())
 
     fact_bus_stop_trip_count.write\
         .format('bigquery')\

@@ -37,7 +37,11 @@ def preprocessing(ds):
             r.DIST,
             CURRENT_DATE() AS UPDATED_AT
         FROM bus_route r
-        LEFT JOIN bus_stop_passenger p
+        LEFT JOIN (SELECT DISTINCT
+                        RTE_ID,
+                        RTE_NM,
+                        RTE_NM_DETAIL
+                    FROM bus_stop_passenger) p
         ON r.RTE_NM = p.RTE_NM
     """)
     regex = r'.*\((\S+)~(\S+)\)'
