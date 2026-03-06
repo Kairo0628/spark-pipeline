@@ -26,11 +26,6 @@ def preprocessing(ds):
     bus_stop_trip_count = spark.read.json(f'{base_dir}/dt={ds}/bus_stop_trip_count.json')
     bus_dong_passenger = spark.read.json(f'{base_dir}/dt={ds}/bus_dong_passenger.json')
 
-    # VM에서 확인 후 변경
-    dong_foot_traffic = dong_foot_traffic.repartition(6)
-    bus_stop_passenger = bus_stop_passenger.repartition(6)
-    bus_stop_trip_count = bus_stop_trip_count.repartition(6)
-
     dong_foot_traffic.createOrReplaceTempView('dong_foot_traffic')
     bus_stop_passenger.createOrReplaceTempView('bus_stop_passenger')
     bus_stop_trip_count.createOrReplaceTempView('bus_stop_trip_count')
@@ -63,6 +58,7 @@ def preprocessing(ds):
     dong_foot_traffic = dong_foot_traffic.withColumn('dt', f.lit(ds))
     dong_foot_traffic.show(1)
     dong_foot_traffic.printSchema()
+    print('Partitions:', dong_foot_traffic.rdd.getNumPartitions())
 
     bus_stop_passenger = spark.sql("""
         SELECT
@@ -82,6 +78,7 @@ def preprocessing(ds):
                                             .drop('RTE_NO')
     bus_stop_passenger.show(1)
     bus_stop_passenger.printSchema()
+    print('Partitions:', bus_stop_passenger.rdd.getNumPartitions())
 
     bus_stop_trip_count = spark.sql("""
         SELECT
@@ -119,6 +116,7 @@ def preprocessing(ds):
     bus_stop_trip_count = bus_stop_trip_count.withColumn('dt', f.lit(ds))
     bus_stop_trip_count.show(1)
     bus_stop_trip_count.printSchema()
+    print('Partitions:', bus_stop_trip_count.rdd.getNumPartitions())
 
     bus_dong_passenger = spark.sql("""
         SELECT
@@ -154,8 +152,13 @@ def preprocessing(ds):
     bus_dong_passenger = bus_dong_passenger.withColumn('dt', f.lit(ds))
     bus_dong_passenger.show(1)
     bus_dong_passenger.printSchema()
+    print('Partitions:', bus_dong_passenger.rdd.getNumPartitions())
 
     write_base_dir = 'gs://spark-pipeline-bucket/parquet/daily'
+    
+    dong_foot_traffic = dong_foot_traffic.repartition(3)
+    bus_stop_passenger = bus_stop_passenger.repartition(3)
+    bus_stop_trip_count = bus_stop_trip_count.repartition(6)
     dong_foot_traffic.write\
                     .mode('overwrite')\
                     .partitionBy('dt')\
