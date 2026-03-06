@@ -40,9 +40,9 @@ def preprocessing(ds):
         LIMIT 1
     """)
 
-    bus_dong_passenger.show(1)
-    bus_dong_passenger.printSchema()
-    print('Partitions:', bus_dong_passenger.rdd.getNumPartitions())
+    dim_date.show(1)
+    dim_date.printSchema()
+    print('Partitions:', dim_date.rdd.getNumPartitions())
 
     dim_date.write\
             .format('bigquery')\
