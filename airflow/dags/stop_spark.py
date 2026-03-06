@@ -7,7 +7,7 @@ with DAG(
     dag_id = 'stop_spark_cluster_dag',
     description = 'Stop Spark Cluster',
     start_date = datetime(2026, 2, 28),
-    schedule = '0 8 * * *', # 매일 UTC: 08:00, KST: 17:00
+    schedule = '0 7 * * *', # 매일 UTC: 08:00, KST: 16:00
     tags = ['spark']
 ) as dag:
 
