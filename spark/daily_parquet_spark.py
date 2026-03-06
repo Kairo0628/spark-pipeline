@@ -70,8 +70,8 @@ def preprocessing(ds):
             CAST(RTE_ID AS INT) AS RTE_ID,
             RTE_NO,
             RTE_NM AS RTE_NM_DETAIL,
-            CAST(STOPS_ID AS INT) AS STOPS_ID,
-            CAST(STOPS_ARS_NO AS INT) AS STOPS_NO,
+            CAST(STOPS_ID AS INT) AS STOP_ID,
+            CAST(STOPS_ARS_NO AS INT) AS STOP_NO,
             SBWY_STNS_NM AS STOPS_NM_DETAIL,
             CAST(GTON_TNOPE AS FLOAT) AS GTON_TNOPE,
             CAST(GTOFF_TNOPE AS FLOAT) AS GTOFF_TNOPE
@@ -87,7 +87,7 @@ def preprocessing(ds):
         SELECT
             CRTR_DD AS BASE_YMD,
             CAST(RTE_ID AS INT) AS RTE_ID,
-            CAST(STOPS_ID AS INT) AS STOPS_ID,
+            CAST(STOPS_ID AS INT) AS STOP_ID,
             CAST(BUS_OPR AS FLOAT) AS BUS_OPR,
             CAST(BUS_OPR_00 AS FLOAT) AS BUS_OPR_00,
             CAST(BUS_OPR_01 AS FLOAT) AS BUS_OPR_01,
@@ -113,7 +113,7 @@ def preprocessing(ds):
             CAST(BUS_OPR_21 AS FLOAT) AS BUS_OPR_21,
             CAST(BUS_OPR_22 AS FLOAT) AS BUS_OPR_22,
             CAST(BUS_OPR_23 AS FLOAT) AS BUS_OPR_23,
-            CAST(STOPS_SEQ AS FLOAT) AS STOPS_SEQ
+            CAST(STOPS_SEQ AS FLOAT) AS STOP_SEQ
         FROM bus_stop_trip_count
     """)
     bus_stop_trip_count = bus_stop_trip_count.withColumn('dt', f.lit(ds))
