@@ -64,15 +64,22 @@ def extract_bus_stop_trip_count(api_id, target_date, **context):
             url = f'{base_url}/{api_key}/json/{api_id}/{i}/{i + 999}/{target_date}'
             response = requests.get(url = url)
             row = response.json()[api_id]['row']
-            if row[-1]['CRTR_DD'] != target_date:
+            if row[-1]['CRTR_DD'] > target_date:
+                continue
+            elif row[-1]['CRTR_DD'] == target_date:
+                if row[0]['CRTR_DD'] == target_date:
+                    rows += row
+                else:
+                    for j in row:
+                        if j['CRTR_DD'] == target_date:
+                            rows.append(j)
+            else:
                 for j in row:
                     if j['CRTR_DD'] == target_date:
                         rows.append(j)
                     else:
                         stop = True
                         break
-            else:
-                rows += row
             
             if stop:
                 break
@@ -104,7 +111,7 @@ def upload_gcs(api_id, ds, **context):
 with DAG(
     dag_id = 'daily_raw_data_dag_v2',
     description = 'Extract Daily Raw Data and Load to GCS',
-    start_date = datetime(2026, 2, 26),
+    start_date = datetime(2026, 2, 28),
     schedule = '30 5 * * *', # 매일. UTC: 05:30, KST: 14:30
     tags = ['Daily', 'Raw'],
     max_active_runs = 1

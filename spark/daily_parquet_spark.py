@@ -156,8 +156,8 @@ def preprocessing(ds):
 
     write_base_dir = 'gs://spark-pipeline-bucket/parquet/daily'
     
-    dong_foot_traffic = dong_foot_traffic.repartition(3)
-    bus_stop_passenger = bus_stop_passenger.repartition(3)
+    dong_foot_traffic = dong_foot_traffic.repartition(6)
+    bus_stop_passenger = bus_stop_passenger.repartition(6)
     bus_stop_trip_count = bus_stop_trip_count.repartition(6)
     dong_foot_traffic.write\
                     .mode('overwrite')\

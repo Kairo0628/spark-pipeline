@@ -36,7 +36,7 @@ def preprocessing(ds):
     bus_route_stop.printSchema()
     print('Partitions:', bus_route_stop.rdd.getNumPartitions())
 
-    bus_route_stop = bus_route_stop.repartition(3)
+    bus_route_stop = bus_route_stop.repartition(6)
     bus_route_stop.write\
                 .mode('overwrite')\
                 .partitionBy('dt')\
