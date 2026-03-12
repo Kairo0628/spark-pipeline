@@ -11,7 +11,7 @@ with DAG(
     tags = ['Monthly', 'parquet']
 ) as dag:
     
-    t1 = SSHOperator(
+    monthly_parquet_spark = SSHOperator(
         task_id = 'gcs_monthly_raw_to_parquet',
         ssh_conn_id = 'ssh_conn_id',
         cmd_timeout = None,
@@ -26,4 +26,16 @@ with DAG(
         """
     )
 
-    t1
+    test_monthly_parquet = SSHOperator(
+        task_id = 'test_daily_parquet_schema',
+        ssh_conn_id = 'ssh_conn_id',
+        cmd_timeout = None,
+        command = """
+            source venv/bin/activate && \
+            cd /opt/spark/pytest && \
+            pytest -v --ds {{ ds }} *monthly*.py && \
+            deactivate
+        """
+    )
+
+    monthly_parquet_spark >> test_monthly_parquet
