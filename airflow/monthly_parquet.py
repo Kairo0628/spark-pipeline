@@ -23,7 +23,7 @@ with DAG(
     )
 
     test_monthly_parquet = SSHOperator(
-        task_id = 'test_daily_parquet_schema',
+        task_id = 'test_monthly_parquet',
         ssh_conn_id = 'ssh_conn_id',
         cmd_timeout = None,
         command = """
