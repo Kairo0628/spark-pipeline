@@ -17,7 +17,6 @@ with DAG(
         cmd_timeout = None,
         command = """
             /opt/spark/bin/spark-submit \
-            --packages com.google.cloud.spark:spark-bigquery-with-dependencies_2.12:0.34.0 \
             /opt/spark/scripts/create_dim_table.py \
             --ds {{ ds }}
         """
