@@ -17,10 +17,6 @@ with DAG(
         cmd_timeout = None,
         command = """
             /opt/spark/bin/spark-submit \
-            --master spark://10.128.0.8:7077 \
-            --conf 'spark.driver.userClassPathFirst=true' \
-            --conf 'spark.executor.userClassPathFirst=true' \
-            --packages com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.5 \
             /opt/spark/scripts/monthly_parquet_spark.py \
             --ds {{ ds }}
         """

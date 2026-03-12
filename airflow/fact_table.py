@@ -17,10 +17,7 @@ with DAG(
         cmd_timeout = None,
         command = """
             /opt/spark/bin/spark-submit \
-            --master spark://10.128.0.8:7077 \
-            --conf 'spark.driver.userClassPathFirst=true' \
-            --conf 'spark.executor.userClassPathFirst=true' \
-            --packages com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.5,com.google.cloud.spark:spark-bigquery-with-dependencies_2.12:0.34.0 \
+            --packages com.google.cloud.spark:spark-bigquery-with-dependencies_2.12:0.34.0 \
             /opt/spark/scripts/create_fact_table.py \
             --ds {{ ds }}
         """

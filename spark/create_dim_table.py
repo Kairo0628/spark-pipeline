@@ -7,8 +7,6 @@ import argparse
 def create_spark_session():
     conf = SparkConf()
     conf.set('spark.app.name', 'Create Dimension Table')
-    conf.set("spark.hadoop.fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem")
-    conf.set("spark.hadoop.google.cloud.auth.service.account.enable", "true")
 
     spark = SparkSession.builder\
             .config(conf = conf)\
