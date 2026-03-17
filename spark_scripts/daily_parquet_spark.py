@@ -19,44 +19,13 @@ def preprocessing(ds):
     spark = create_spark_session()
 
     base_dir = 'gs://spark-pipeline-bucket/raw_data/daily'
-    dong_foot_traffic = spark.read.json(f'{base_dir}/dt={ds}/dong_foot_traffic.json')
     bus_stop_passenger = spark.read.json(f'{base_dir}/dt={ds}/bus_stop_passenger.json')
     bus_stop_trip_count = spark.read.json(f'{base_dir}/dt={ds}/bus_stop_trip_count.json')
     bus_dong_passenger = spark.read.json(f'{base_dir}/dt={ds}/bus_dong_passenger.json')
 
-    dong_foot_traffic.createOrReplaceTempView('dong_foot_traffic')
     bus_stop_passenger.createOrReplaceTempView('bus_stop_passenger')
     bus_stop_trip_count.createOrReplaceTempView('bus_stop_trip_count')
     bus_dong_passenger.createOrReplaceTempView('bus_dong_passenger')
-
-    dong_foot_traffic = spark.sql("""
-        SELECT
-            STDR_DE_ID AS BASE_YMD,
-            TMZON_PD_SE AS HOUR,
-            CAST(ADSTRD_CODE_SE AS INT) AS DONG_ID,
-            CAST(TOT_LVPOP_CO AS FLOAT) AS TOT_LVPOP_CO,
-            CAST(MALE_F0T9_LVPOP_CO AS FLOAT) AS MALE_F0T9_LVPOP_CO,
-            (CAST(MALE_F10T14_LVPOP_CO AS FLOAT) + CAST(MALE_F15T19_LVPOP_CO AS FLOAT)) AS MALE_F10T19_LVPOP_CO,
-            (CAST(MALE_F20T24_LVPOP_CO AS FLOAT) + CAST(MALE_F25T29_LVPOP_CO AS FLOAT)) AS MALE_F20T29_LVPOP_CO,
-            (CAST(MALE_F30T34_LVPOP_CO AS FLOAT) + CAST(MALE_F35T39_LVPOP_CO AS FLOAT)) AS MALE_F30T39_LVPOP_CO,
-            (CAST(MALE_F40T44_LVPOP_CO AS FLOAT) + CAST(MALE_F45T49_LVPOP_CO AS FLOAT)) AS MALE_F40T49_LVPOP_CO,
-            (CAST(MALE_F50T54_LVPOP_CO AS FLOAT) + CAST(MALE_F55T59_LVPOP_CO AS FLOAT)) AS MALE_F50T59_LVPOP_CO,
-            (CAST(MALE_F60T64_LVPOP_CO AS FLOAT) + CAST(MALE_F65T69_LVPOP_CO AS FLOAT)) AS MALE_F60T69_LVPOP_CO,
-            CAST(MALE_F70T74_LVPOP_CO AS FLOAT) AS MALE_F70T74_LVPOP_CO,
-            CAST(FEMALE_F0T9_LVPOP_CO AS FLOAT) AS FEMALE_F0T9_LVPOP_CO,
-            (CAST(FEMALE_F10T14_LVPOP_CO AS FLOAT) + CAST(FEMALE_F15T19_LVPOP_CO AS FLOAT)) AS FEMALE_F10T19_LVPOP_CO,
-            (CAST(FEMALE_F20T24_LVPOP_CO AS FLOAT) + CAST(FEMALE_F25T29_LVPOP_CO AS FLOAT)) AS FEMALE_F20T29_LVPOP_CO,
-            (CAST(FEMALE_F30T34_LVPOP_CO AS FLOAT) + CAST(FEMALE_F35T39_LVPOP_CO AS FLOAT)) AS FEMALE_F30T39_LVPOP_CO,
-            (CAST(FEMALE_F40T44_LVPOP_CO AS FLOAT) + CAST(FEMALE_F45T49_LVPOP_CO AS FLOAT)) AS FEMALE_F40T49_LVPOP_CO,
-            (CAST(FEMALE_F50T54_LVPOP_CO AS FLOAT) + CAST(FEMALE_F55T59_LVPOP_CO AS FLOAT)) AS FEMALE_F50T59_LVPOP_CO,
-            (CAST(FEMALE_F60T64_LVPOP_CO AS FLOAT) + CAST(FEMALE_F65T69_LVPOP_CO AS FLOAT)) AS FEMALE_F60T69_LVPOP_CO,
-            CAST(FEMALE_F70T74_LVPOP_CO AS FLOAT) AS FEMALE_F70T74_LVPOP_CO
-        FROM dong_foot_traffic
-    """)
-    dong_foot_traffic = dong_foot_traffic.withColumn('dt', f.lit(ds))
-    dong_foot_traffic.show(1)
-    dong_foot_traffic.printSchema()
-    print('Partitions:', dong_foot_traffic.rdd.getNumPartitions())
 
     bus_stop_passenger = spark.sql("""
         SELECT
@@ -154,13 +123,8 @@ def preprocessing(ds):
 
     write_base_dir = 'gs://spark-pipeline-bucket/parquet/daily'
     
-    dong_foot_traffic = dong_foot_traffic.repartition(6)
     bus_stop_passenger = bus_stop_passenger.repartition(6)
     bus_stop_trip_count = bus_stop_trip_count.repartition(6)
-    dong_foot_traffic.write\
-                    .mode('overwrite')\
-                    .partitionBy('dt')\
-                    .parquet(f'{write_base_dir}/dong_foot_traffic')
     bus_stop_passenger.write\
                     .mode('overwrite')\
                     .partitionBy('dt')\

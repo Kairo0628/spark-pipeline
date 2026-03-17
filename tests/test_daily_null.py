@@ -30,11 +30,3 @@ class TestMonthlyNull():
         assert bus_stop_trip_count.filter(f.col('BASE_YMD').isNull()).limit(1).count() == 0
         assert bus_stop_trip_count.filter(f.col('RTE_ID').isNull()).limit(1).count() == 0
         assert bus_stop_trip_count.filter(f.col('STOP_ID').isNull()).limit(1).count() == 0
-
-    def test_dong_foot_traffic_null(self, spark, ds):
-        dong_foot_traffic = spark.read.parquet(f'{self.base_dir}/dong_foot_traffic/dt={ds}')
-
-        assert dong_foot_traffic.count() > 0
-
-        assert dong_foot_traffic.filter(f.col('BASE_YMD').isNull()).limit(1).count() == 0
-        assert dong_foot_traffic.filter(f.col('DONG_ID').isNull()).limit(1).count() == 0

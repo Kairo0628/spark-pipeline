@@ -16,7 +16,6 @@ apache-airflow: 3.1.7 (Docker)
 1. **서울시 공공데이터를 API를 이용하여 수집**
 - [서울 열린데이터 광장](https://data.seoul.go.kr/)
     - **월간**
-        - 서울시 읍면동마스터 정보
         - 서울시 노선 정류장마스터 정보
         - 서울시 정류장마스터 정보
         - 서울시 노선마스터 정보
@@ -25,6 +24,8 @@ apache-airflow: 3.1.7 (Docker)
         - 서울시 버스노선별 정류장별 승하차 인원 정보
         - 서울시 노선별 정류장별 총 버스 운행횟수 정보
         - 서울시 행정동별 버스 총 승차 승객수 정보
+    - **+행정동 경계 데이터**
+        - https://github.com/vuski/admdongkor
 2. **Raw Data를 .json 형태로 적재 (GCS)**
 3. **전처리 및 .parquet 형태로 적재 (GCS)**
 4. **Star Schema(Fact/Dimension) 형태로 BigQuery에 적재**
@@ -48,5 +49,3 @@ apache-airflow: 3.1.7 (Docker)
 2. 행정동 관련 미사용 데이터 BigQuery 테이블 생성 프로세스 추가
 3. BigQuery 테이블 로드 -> Join 및 집계 테이블 생성 프로세스 추가
 4. ML Pipeline? -> 예측할 내용 및 컬럼 생성 작업 필요. 이전 작업에서 최종 테이블로 만들어도 됨.
-
-국토교통부_(센서스경계)행정동경계

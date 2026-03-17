@@ -9,7 +9,6 @@ import os
 from datetime import datetime
 
 FILE_NAME ={
-    'SPOP_LOCAL_RESD_DONG': 'dong_foot_traffic',
     'CardBusStatisticsServiceNew': 'bus_stop_passenger',
     'tpssStationRouteTurn': 'bus_stop_trip_count',
     'tpssEmdBus': 'bus_dong_passenger'
@@ -116,23 +115,6 @@ with DAG(
     tags = ['Daily', 'Raw'],
     max_active_runs = 1
 ) as dag:
-    
-    dong_foot_traffic_extract = PythonOperator(
-        task_id = 'dong_foot_traffic_extract',
-        python_callable = extract,
-        op_kwargs = {
-            'api_id': 'SPOP_LOCAL_RESD_DONG',
-            'target_date': '{{ macros.ds_format(macros.ds_add(ds, -5), "%Y-%m-%d", "%Y%m%d") }}'
-        }
-    )
-
-    dong_foot_traffic_upload = PythonOperator(
-        task_id = 'dong_foot_traffic_upload',
-        python_callable = upload_gcs,
-        op_kwargs = {
-            'api_id': 'SPOP_LOCAL_RESD_DONG'
-        }
-    )
 
     bus_stop_passenger_extract = PythonOperator(
         task_id = 'bus_stop_passenger_extract',
@@ -184,8 +166,7 @@ with DAG(
             'api_id': 'tpssEmdBus'
         }
     )
-
-    dong_foot_traffic_extract >> dong_foot_traffic_upload
+    
     bus_stop_passenger_extract >> bus_stop_passenger_upload
     bus_stop_trip_count_extract >> bus_stop_trip_count_upload
     bus_dong_passenger_extract >> bus_dong_passenger_upload

@@ -47,19 +47,3 @@ class TestDailySchema():
         ])
 
         assert schema == bus_stop_trip_count.schema
-
-    def test_dong_foot_traffic_schema(self, spark, ds):
-        dong_foot_traffic = spark.read.parquet(f'{self.base_dir}/dong_foot_traffic/dt={ds}')
-
-        schema = StructType([
-            StructField('BASE_YMD', StringType(), True),
-            StructField('HOUR', StringType(), True),
-            StructField('DONG_ID', IntegerType(), True),
-            StructField('TOT_LVPOP_CO', FloatType(), True)
-        ] + [StructField(f'MALE_F{i * 10}T{i * 10 + 9}_LVPOP_CO', FloatType(), True) for i in range(7)
-        ] + [StructField('MALE_F70T74_LVPOP_CO', FloatType(), True)
-        ] + [StructField(f'FEMALE_F{i * 10}T{i * 10 + 9}_LVPOP_CO', FloatType(), True) for i in range(7)
-        ] + [StructField('FEMALE_F70T74_LVPOP_CO', FloatType(), True)
-        ])
-
-        assert schema == dong_foot_traffic.schema
