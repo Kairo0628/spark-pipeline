@@ -43,15 +43,3 @@ class TestMonthlySchema():
         ])
 
         assert schema == bus_stop.schema
-
-    def test_dong_info_schema(self, spark, ds):
-        dong_info = spark.read.parquet(f'{self.base_dir}/dong_info/dt={ds}')
-
-        schema = StructType([
-            StructField('CGG_NM', StringType(), True),
-            StructField('CTPV_NM', StringType(), True),
-            StructField('DONG_ID', IntegerType(), True),
-            StructField('DONG_NM', StringType(), True)
-        ])
-
-        assert schema == dong_info.schema

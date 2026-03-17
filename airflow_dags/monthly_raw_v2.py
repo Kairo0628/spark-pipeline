@@ -11,8 +11,7 @@ from datetime import datetime
 FILE_NAME = {
     'masterRouteNode': 'bus_route_stop',
     'tbisMasterStation': 'bus_stop',
-    'tbisMasterRoute': 'bus_route',
-    'districtEmd': 'dong_info'
+    'tbisMasterRoute': 'bus_route'
 }
 
 def extract(api_id):
@@ -117,23 +116,6 @@ with DAG(
         }
     )
 
-    dong_info_extract = PythonOperator(
-        task_id = 'dong_info_extract',
-        python_callable = extract,
-        op_kwargs = {
-            'api_id': 'districtEmd'
-        }
-    )
-
-    dong_info_upload = PythonOperator(
-        task_id = 'dong_info_upload',
-        python_callable = upload_gcs,
-        op_kwargs = {
-            'api_id': 'districtEmd',
-        }
-    )
-
     bus_route_stop_extract >> bus_route_stop_upload
     bus_stop_extract >> bus_stop_upload
     bus_route_extract >> bus_route_upload
-    dong_info_extract >> dong_info_upload

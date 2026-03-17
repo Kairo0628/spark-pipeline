@@ -76,20 +76,6 @@ def preprocessing(ds):
                 .partitionBy('dt')\
                 .parquet(f'{write_base_dir}/bus_route')
 
-    # 읍면동 마스터
-    dong_info = spark.read.json(f'{base_dir}/dt={ds}/dong_info.json')
-    dong_info = dong_info.withColumn('DONG_ID', f.col('DONG_ID').cast('int'))\
-                        .withColumn('dt', f.lit(ds))
-    
-    dong_info.show(1)
-    dong_info.printSchema()
-    print('Partitions:', dong_info.rdd.getNumPartitions())
-
-    dong_info.write\
-                .mode('overwrite')\
-                .partitionBy('dt')\
-                .parquet(f'{write_base_dir}/dong_info')
-
     spark.stop()
 
 if __name__ == '__main__':

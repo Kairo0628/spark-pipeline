@@ -26,10 +26,3 @@ class TestMonthlyNull():
         assert bus_stop.count() > 0
 
         assert bus_stop.filter(f.col('STOP_ID').isNull()).limit(1).count() == 0
-
-    def test_dong_info_null(self, spark, ds):
-        dong_info = spark.read.parquet(f'{self.base_dir}/dong_info/dt={ds}')
-
-        assert dong_info.count() > 0
-
-        assert dong_info.filter(f.col('DONG_ID').isNull()).limit(1).count() == 0
