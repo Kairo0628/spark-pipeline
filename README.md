@@ -24,7 +24,7 @@ apache-airflow: 3.1.7 (Docker)
         - 서울시 버스노선별 정류장별 승하차 인원 정보
         - 서울시 노선별 정류장별 총 버스 운행횟수 정보
         - 서울시 행정동별 버스 총 승차 승객수 정보
-    - **+행정동 경계 데이터**
+    - **+ 행정동 경계 데이터**
         - https://github.com/vuski/admdongkor
 2. **Raw Data를 .json 형태로 적재 (GCS)**
 3. **전처리 및 .parquet 형태로 적재 (GCS)**
@@ -33,16 +33,17 @@ apache-airflow: 3.1.7 (Docker)
 
 ## 📂 Project Structure
 ```plaintext
-├── airflow_dags/      # Airflow DAGs
-├── imgs/              # Images
-├── spark_scripts/     # Spark Scripts
+├── airflow_dags/
+├── imgs/
+├── python_scripts/
+├── spark_scripts/
 ├── tests/             # pytest Scripts
 └── requirements.txt   # pytest를 위해 가상 환경에서 필요한 라이브러리
 ```
 
 ## 👀 Key Features
-- **Spark Cluster**: 1 Driver - 3 Worker 형태로 GCP에서 구현
-- **Testing**
+- **Spark Cluster**: 1Driver - 3Worker 형태로 GCP에서 구성
+- **Testing**: Pytest를 이용하여 Parquet 파일의 스키마 및 필수 컬럼 데이터 유효성 검사
 
 ## ⛔ 추가 사항
 1. 행정동 경계 SHP 파일을 이용하여 위-경도 변환 및 기존 데이터와 매칭

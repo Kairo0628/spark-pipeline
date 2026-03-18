@@ -63,6 +63,7 @@ def preprocessing(ds):
         FROM bus_stop_passenger
     """)
 
+    fact_bus_stop_passenger.cache()
     fact_bus_stop_passenger.show(1)
     fact_bus_stop_passenger.printSchema()
     print('Partitions:', fact_bus_stop_passenger.rdd.getNumPartitions())
@@ -73,6 +74,7 @@ def preprocessing(ds):
         .option('temporaryGcsPath', 'temp')\
         .mode('append')\
         .save('data-engineering-478006.spark_dataset.fact_bus_stop_passenger')
+    fact_bus_stop_passenger.unpersist()
     
     # fact2: fact_bus_stop_trip_count
     bus_stop_trip_count = spark.read.parquet(f'{base_dir}/daily/bus_stop_trip_count/dt={ds}')
@@ -85,6 +87,7 @@ def preprocessing(ds):
         FROM bus_stop_trip_count
     """)
 
+    fact_bus_stop_trip_count.cache()
     fact_bus_stop_trip_count.show(1)
     fact_bus_stop_trip_count.printSchema()
     print('Partitions:', fact_bus_stop_trip_count.rdd.getNumPartitions())
@@ -95,6 +98,7 @@ def preprocessing(ds):
         .option('temporaryGcsPath', 'temp')\
         .mode('append')\
         .save('data-engineering-478006.spark_dataset.fact_bus_stop_trip_count')
+    fact_bus_stop_trip_count.unpersist()
     
     spark.stop()
     
