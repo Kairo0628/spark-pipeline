@@ -10,10 +10,10 @@ class TestDailySchema():
 
         schema = StructType([
             StructField('BASE_YMD', StringType(), True),
-            StructField('DONG_ID', IntegerType(), True),
             StructField('BUS_PSNG', FloatType(), True)
-            ] + [StructField(f'BUS_PSNG_{i:02d}', FloatType(), True) for i in range(24)]
-        )
+            ] + [StructField(f'BUS_PSNG_{i:02d}', FloatType(), True) for i in range(24)
+            ] + [StructField('DONG_ID', IntegerType(), True)
+        ])
 
         assert schema == bus_dong_passenger.schema
 

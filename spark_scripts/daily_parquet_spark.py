@@ -139,7 +139,32 @@ def preprocessing(ds):
             FROM bus_dong_passenger
         )
         SELECT
-            * EXCEPT(DONG_ID),
+            BASE_YMD,
+            BUS_PSNG,
+            BUS_PSNG_00,
+            BUS_PSNG_01,
+            BUS_PSNG_02,
+            BUS_PSNG_03,
+            BUS_PSNG_04,
+            BUS_PSNG_05,
+            BUS_PSNG_06,
+            BUS_PSNG_07,
+            BUS_PSNG_08,
+            BUS_PSNG_09,
+            BUS_PSNG_10,
+            BUS_PSNG_11,
+            BUS_PSNG_12,
+            BUS_PSNG_13,
+            BUS_PSNG_14,
+            BUS_PSNG_15,
+            BUS_PSNG_16,
+            BUS_PSNG_17,
+            BUS_PSNG_18,
+            BUS_PSNG_19,
+            BUS_PSNG_20,
+            BUS_PSNG_21,
+            BUS_PSNG_22,
+            BUS_PSNG_23,
             CASE
                 WHEN DONG_ID = 11060810 THEN 11060920
                 WHEN DONG_ID = 11160640 THEN 11160751

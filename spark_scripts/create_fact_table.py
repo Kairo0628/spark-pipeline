@@ -22,6 +22,7 @@ def preprocessing(ds):
     # dim_date 테이블은 운행 날짜를 기록하므로 매일 업데이트
     bus_dong_passenger = spark.read.parquet(f'{base_dir}/daily/bus_dong_passenger/dt={ds}')
     bus_dong_passenger.createOrReplaceTempView('bus_dong_passenger')
+    bus_dong_passenger.cache()
     dim_date = spark.sql("""
         SELECT
             BASE_YMD,
@@ -49,6 +50,28 @@ def preprocessing(ds):
             .mode('append')\
             .save('data-engineering-478006.spark_dataset.dim_date')
     
+    # fact3: bus_dong_passenger
+    fact_bus_dong_passenger = spark.sql("""
+        SELECT
+            *,
+            CURRENT_DATE() AS UPDATED_AT
+        FROM bus_dong_passenger
+    """)
+
+    fact_bus_dong_passenger.cache()
+    fact_bus_dong_passenger.show(1)
+    bus_dong_passenger.unpersist()
+    fact_bus_dong_passenger.printSchema()
+    print('Partitions:', fact_bus_dong_passenger.rdd.getNumPartitions())
+
+    fact_bus_dong_passenger.write\
+        .format('bigquery')\
+        .option('temporaryGcsBucket', 'spark-pipeline-bucket')\
+        .option('temporaryGcsPath', 'temp')\
+        .mode('append')\
+        .save('data-engineering-478006.spark_dataset.fact_bus_dong_passenger')
+    fact_bus_dong_passenger.unpersist()
+
     # fact1: fact_bus_stop_passenger
     bus_stop_passenger = spark.read.parquet(f'{base_dir}/daily/bus_stop_passenger/dt={ds}')
     bus_stop_passenger.createOrReplaceTempView('bus_stop_passenger')
