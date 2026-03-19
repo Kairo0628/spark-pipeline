@@ -28,6 +28,7 @@ with DAG(
     #    ssh_conn_id = 'ssh_conn_id',
     #    cmd_timeout = 'None',
     #    command = """
+    #       source/venv/bin/activate && \
     #        /opt/spark/bin/spark-submit \
     #        /opt/spark/scripts/create_dim_stop_dong.py
     #    """
