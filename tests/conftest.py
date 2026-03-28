@@ -17,7 +17,7 @@ def ds(request):
 @pytest.fixture
 def spark():
     conf = SparkConf()
-    #conf.set('spark.master', 'local[*]')
+    conf.set('spark.master', 'local[*]')
     conf.set('spark.app.name', 'Pyspark Testing')
 
     session = SparkSession.builder\
