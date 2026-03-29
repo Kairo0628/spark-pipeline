@@ -163,8 +163,11 @@ def create_base_table():
     """)
     base_table = base_table.filter('BASE_YMD > "20260221"').dropna(subset = ['AVG_7DAY_BUS_OPR'])
     base_table.write\
-                .mode('overwrite')\
-                .parquet('gs://spark-pipeline-bucket/parquet/ML/base_table')
+            .format('bigquery')\
+            .option('temporaryGcsBucket', 'spark-pipeline-bucket')\
+            .option('temporaryGcsPath', 'temp')\
+            .mode('overwrite')\
+            .save('data-engineering-478006.spark_dataset.base_table')
 
     clean_wide_table.unpersist()
     
