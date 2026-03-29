@@ -124,8 +124,8 @@ def create_wide_table():
             p.STOP_ID,
             p.GTON_TNOPE,
             p.GTOFF_TNOPE,
-            SUM(GTON_TNOPE) OVER(PARTITION BY RTE_ID) AS TOTAL_ON,
-            SUM(GTOFF_TNOPE) OVER(PARTITION BY RTE_ID) AS TOTAL_OFF
+            SUM(GTON_TNOPE) OVER(PARTITION BY BASE_YMD, RTE_ID) AS TOTAL_ON,
+            SUM(GTOFF_TNOPE) OVER(PARTITION BY BASE_YMD, RTE_ID) AS TOTAL_OFF
         FROM latest_stop_passenger p
         JOIN dim_bus_route r ON p.RTE_ID = r.RTE_ID_2
     """)
@@ -211,6 +211,7 @@ def create_wide_table():
     # fin_wide_table
     fin_wide_table = spark.sql("""
         SELECT
+            d.BASE_YMD,
             CAST(d.YEAR AS INT) AS YEAR,
             CAST(d.MONTH AS INT) AS MONTH,
             CAST(d.DAY AS INT) AS DAY,
@@ -247,8 +248,7 @@ def create_wide_table():
             dp.BUS_PSNG_08, dp.BUS_PSNG_09, dp.BUS_PSNG_10, dp.BUS_PSNG_11,
             dp.BUS_PSNG_12, dp.BUS_PSNG_13, dp.BUS_PSNG_14, dp.BUS_PSNG_15,
             dp.BUS_PSNG_16, dp.BUS_PSNG_17, dp.BUS_PSNG_18, dp.BUS_PSNG_19,
-            dp.BUS_PSNG_20, dp.BUS_PSNG_21, dp.BUS_PSNG_22, dp.BUS_PSNG_23,
-            (p.GTON_TNOPE + p.GTOFF_TNOPE) / NULLIF(c.BUS_OPR, 0) AS TARGET
+            dp.BUS_PSNG_20, dp.BUS_PSNG_21, dp.BUS_PSNG_22, dp.BUS_PSNG_23
         FROM agg_stop_passenger p
         JOIN latest_trip_count c
             ON p.BASE_YMD = c.BASE_YMD
