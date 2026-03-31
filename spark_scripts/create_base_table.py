@@ -162,6 +162,7 @@ def create_base_table():
         FROM temp2
     """)
     base_table = base_table.filter('BASE_YMD > "20260221"').dropna(subset = ['AVG_7DAY_BUS_OPR'])
+    base_table.coalesce(1)
     base_table.write\
             .format('bigquery')\
             .option('temporaryGcsBucket', 'spark-pipeline-bucket')\
