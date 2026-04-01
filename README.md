@@ -30,6 +30,15 @@ apache-airflow: 3.1.7 (Docker)
 3. **전처리 및 .parquet 형태로 적재 (GCS)**
 4. **Star Schema(Fact/Dimension) 형태로 BigQuery에 적재**
 5. **Airflow를 이용한 전체 Spark Cluster 운영 및 파이프라인 자동화**
+6. **Spark SQL을 이용하여 ML 훈련을 위한 테이블 생성**
+7. **각 노선의 정류장별 버스 운행 효율성을 예측하는 ML Pipeline 구성**
+
+### 프로젝트 구조
+![architecture](imgs/architecture.png)
+
+## 👀 Key Features
+- **Spark Cluster**: 1Driver - 3Worker 형태로 GCP에서 구성
+- **Testing**: Pytest를 이용하여 Parquet 파일의 스키마 일치 여부 및 필수 컬럼의 유효성 검사
 
 ## 📂 Project Structure
 ```plaintext
@@ -40,13 +49,3 @@ apache-airflow: 3.1.7 (Docker)
 ├── tests/             # pytest Scripts
 └── requirements.txt   # pytest를 위해 가상 환경에서 필요한 라이브러리
 ```
-
-## 👀 Key Features
-- **Spark Cluster**: 1Driver - 3Worker 형태로 GCP에서 구성
-- **Testing**: Pytest를 이용하여 Parquet 파일의 스키마 및 필수 컬럼 데이터 유효성 검사
-
-## ⛔ 추가 사항
-1. 
-2. 
-3. BigQuery 테이블 로드 -> Join 및 집계 테이블 생성 프로세스 추가
-4. ML Pipeline? -> 예측할 내용 및 컬럼 생성 작업 필요. 이전 작업에서 최종 테이블로 만들어도 됨.
