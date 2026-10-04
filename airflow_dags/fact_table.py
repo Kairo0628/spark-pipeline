@@ -7,19 +7,19 @@ with DAG(
     dag_id = 'create_fact_table_dag',
     description = 'Create Fact Table In BigQuery',
     start_date = datetime(2026, 2, 28),
-    schedule = '30 6 * * *', # 매일. UTC: 06:30, KST: 15:30
-    tags = ['Daily', 'BigQuery']
+    schedule = '40 6 * * *', # 매일. UTC: 06:40, KST: 15:40
+    tags = ['Daily', 'BigQuery', 'Fact']
 ) as dag:
     
-    t1 = SSHOperator(
+    create_fact_table = SSHOperator(
         task_id = 'parquet_to_fact_table',
         ssh_conn_id = 'ssh_conn_id',
         cmd_timeout = None,
         command = """
             /opt/spark/bin/spark-submit \
-            /opt/spark/scripts/create_fact_table.py \
+            /opt/spark/scripts/create_fact_table_spark.py \
             --ds {{ ds }}
         """
     )
 
-    t1
+    create_fact_table
