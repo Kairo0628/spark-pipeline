@@ -23,4 +23,7 @@ def spark():
     session = SparkSession.builder\
             .config(conf = conf)\
             .getOrCreate()
+    
     yield session
+
+    session.stop()
