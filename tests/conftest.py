@@ -14,7 +14,7 @@ def pytest_addoption(parser):
 def ds(request):
     return request.config.getoption('--ds')
 
-@pytest.fixture
+@pytest.fixture(scope = 'session')
 def spark():
     conf = SparkConf()
     conf.set('spark.master', 'local[*]')

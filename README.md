@@ -45,7 +45,7 @@ spark-pipeline
 ### DAG 타임라인 및 데이터 변화 흐름
 ![dag_timeline](imgs/DAG_timeline.png)
 **데이터 표준화(parquet 변환) 과정**
-- Partition Pruning을 위해 Airflow의 Logical Date를 `dt` 컬럼으로 사용
+- Partition Pruning을 위해 Airflow의 Logical Date를 `dt` 컬럼으로 추가하여 사용
 - parquet 파일의 **스키마 검증** 및 **타입 변환 컬럼의 Null값 여부**를 탐지하는 테스트를 함께 수행(pytest 기반, `tests/` 디렉터리)
     - 테스트는 Driver 서버에서만 실행
     - pytest의 fixture를 이용하여 SparkSession을 한 번만 생성하고 모든 테스트에서 나눠쓰도록 함
@@ -62,16 +62,16 @@ spark-pipeline
     - `fact_route_stop_passenger_opr`: 노선별 정류장별 승객 수 및 운행 수
 
 ### 스케줄 외 작업 (수동 실행)
-- **`dim_ding`**
+- `dim_ding`
     - Spark 코드로만 작성됨
     - 행정동 차원 테이블
     - `GEOMETRY` 컬럼을 GEOGRAPHY 타입으로 직접 변경해야 함
-- **`ml_pipeline.py`**
+- `ml_pipeline.py`
     - Airflow DAG(`Schedule = None`)
     - **노선별 정류장별 버스 운행 효율성**을 예측하는 모델을 훈련
         - 운행 효율성: `(승차 승객 + 하차 승객) / 운행 수`
-    - 모델 훈련에 사용될 테이블을 Spark 작업으로 생성 (`feature_route_stop_psng_opr`)
-    - 타겟 변수, 파생 변수는 BigQueryOeprator로 생성
+    - 모델 훈련에 사용될 테이블을 Spark 작업으로 생성 (`feature_route_stop_psng_opr` 테이블)
+    - 타겟 변수, 파생 변수는 BigQueryOeprator로 사전 생성
     - 모델 훈련, 테스트 및 모델 저장 (`ml_pipeline_spark.py`)
 
 ---
