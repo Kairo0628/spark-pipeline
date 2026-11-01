@@ -82,7 +82,7 @@ def main():
 
     feature_route_stop_psng_opr = spark.sql(f"""
         WITH route_stop_psng_opr_add_stop AS (
-            SELECT
+            SELECT /*+ BROADCAST(d) */
                 d.STOP_ID,
                 f.*
             FROM dim_stop d
@@ -91,7 +91,7 @@ def main():
             WHERE d.IS_CURRENT                         
         ),                                   
         temp_route_stop_passenger_opr AS (
-            SELECT
+            SELECT /*+ BROADCAST(d) */
                 f.DATE,
                 d.RTE_NM,
                 d.RTE_NM_DETAIL,
@@ -119,7 +119,7 @@ def main():
             AND t.STOP_SEQ = r.STOP_SEQ
         ),
         dong_hour_psng_add_stop AS (
-            SELECT
+            SELECT /*+ BROADCAST(s) */
                 f.DATE,
                 s.STOP_SK,
                 s.STOP_ID,

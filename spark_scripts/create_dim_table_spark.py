@@ -71,7 +71,7 @@ def main(ds, is_upsert):
                 FROM route_stop_hour_passenger
                 WHERE dt = :monthly_dt
             )
-            SELECT
+            SELECT /*+ BROADCAST(r) */
                 MD5(CONCAT(CAST(s.STOP_ID AS STRING), STOP_NM, STOP_ARS_NO)) AS STOP_SK,
                 s.STOP_ID,
                 s.STOP_NM,
@@ -133,7 +133,7 @@ def main(ds, is_upsert):
             )
             WHERE rn = 1
         )
-        SELECT
+        SELECT /*+ BROADCAST(h, r) */
             MD5(CONCAT(CAST(r.RTE_ID AS STRING), CAST(t.RTE_ID_8 AS STRING), t.RTE_NM, t.RTE_NM_DETAIL)) AS RTE_SK,
             r.RTE_ID,
             t.RTE_ID_8,
