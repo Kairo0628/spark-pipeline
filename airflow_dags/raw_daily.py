@@ -184,7 +184,7 @@ def upload_gcs(ds, api_id):
     hook = get_gcs_hook()
     hook.upload(
         bucket_name = 'my-spark-pipeline-bucket',
-        object_name = f'raw_data/daily/dt={ds_add(ds, -5)}/{file_name}.json',
+        object_name = f'raw_data/daily/dt={ds}/{file_name}.json',
         filename = f'/opt/airflow/data/{target_date}_{file_name}.json',
         encoding = 'utf-8'
     )
@@ -202,7 +202,7 @@ def valid_upload(ds, api_id):
 
     gcs_file_size = hook.get_size(
         bucket_name = 'my-spark-pipeline-bucket',
-        object_name = f'raw_data/daily/dt={ds_add(ds, -5)}/{file_name}.json',
+        object_name = f'raw_data/daily/dt={ds}/{file_name}.json',
     )
     local_file_size = os.path.getsize(f'/opt/airflow/data/{target_date}_{file_name}.json')
 
