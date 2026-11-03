@@ -85,6 +85,7 @@ def main(ds):
             FROM route_stop_total_passenger t
             JOIN dim_route r
             ON t.RTE_NM_DETAIL = r.RTE_NM_DETAIL
+            AND r.IS_CURRENT
             WHERE t.dt = :ds
         ), temp2 AS (
             SELECT
@@ -98,6 +99,7 @@ def main(ds):
             FROM temp1 t
             JOIN dim_stop s
             ON t.STOP_ID = s.STOP_ID
+            AND s.IS_CURRENT
         )
         SELECT
             CAST(DATE_FORMAT(t.USE_YMD, 'yyyyMMdd') AS LONG) AS DATE,
